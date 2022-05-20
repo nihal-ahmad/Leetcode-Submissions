@@ -1,30 +1,35 @@
 class Solution {
 public:
+      struct comp
+    {
+        bool operator()(const pair<int,string> &a,const pair<int,string> &b)
+        {
+            if(a.first==b.first)
+                return a.second>b.second;
+        
+            return a.first<b.first;
+        }
+    };
+    
     vector<string> topKFrequent(vector<string>& words, int k) {
        vector<string> ans;
         
         unordered_map<string,int> f;
-        map<int,vector<string>> flist;
+        priority_queue<pair<int,string>,vector<pair<int,string>>,comp> q;
         int i,n=words.size();
         
         for(i=0;i<n;i++)
             f[words[i]]++;
         
         for(auto it:f)
-            flist[it.second].push_back(it.first);
+            q.push({it.second,it.first});
         
-        for(auto it=flist.rbegin();it!=flist.rend() && k>0;it++)
+        while(k--)
         {
-            sort((it->second).begin(),(it->second).end());
+            string s=q.top().second;
+            q.pop();
             
-            for(string s:it->second)
-            {
-                if(k<=0)
-                    break;
-                
-                ans.push_back(s);
-                k--;
-            }
+            ans.push_back(s);
         }
         
         return ans;
