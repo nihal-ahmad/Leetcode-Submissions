@@ -1,19 +1,41 @@
+struct Trie {
+  Trie(): nodes(26) {}
+  ~Trie() { 
+    for (auto* node : nodes)
+      delete node;
+  }
+  vector<Trie*> nodes;
+  vector<const string*> words;  
+  
+  static void addWord(Trie* root, const string& word) {    
+    for (char c : word) {      
+      if (root->nodes[c - 'a'] == nullptr) root->nodes[c - 'a'] = new Trie();
+      root = root->nodes[c - 'a'];
+      if (root->words.size() < 3)
+        root->words.push_back(&word);
+    }
+  }
+  
+  static vector<vector<string>> getWords(Trie* root, const string& prefix) {
+    vector<vector<string>> ans(prefix.size());
+    for (int i = 0; i < prefix.size(); ++i) {
+      char c = prefix[i];
+      root = root->nodes[c - 'a'];
+      if (root == nullptr) break;
+      for (auto* word : root->words)
+        ans[i].push_back(*word);
+    }
+    return ans;
+  }
+};
+ 
 class Solution {
 public:
-    vector<vector<string>> suggestedProducts(vector<string>& products, string searchWord) {
-   
-        vector<vector<string>> ans;
-        sort(products.begin(), products.end());
-        string key;
-        for(auto c: searchWord){
-            key += c;
-            auto l=lower_bound(products.begin(), products.end(), key);
-            auto r=upper_bound(products.begin(), products.end(), key+='~');
-            key.pop_back();
-            if(l == r) break;
-            ans.emplace_back(l, min(l+3, r));            
-        }
-        while(ans.size() != searchWord.size()) ans.push_back({});
-        return ans;   
-    }
+  vector<vector<string>> suggestedProducts(vector<string>& products, string searchWord) {
+    std::sort(begin(products), end(products));
+    Trie root;
+    for (const auto& product : products)
+      Trie::addWord(&root, product);
+    return Trie::getWords(&root, searchWord);
+  }
 };
