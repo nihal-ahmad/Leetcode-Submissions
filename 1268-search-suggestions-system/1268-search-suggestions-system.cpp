@@ -2,18 +2,23 @@ class Solution {
 public:
     vector<vector<string>> suggestedProducts(vector<string>& products, string searchWord) {
    
-     vector<vector<string>> ans;
-        sort(products.begin(), products.end());
-        string key;
-        for(auto c: searchWord){
-            key += c;
-            auto l=lower_bound(products.begin(), products.end(), key);
-            auto r=upper_bound(products.begin(), products.end(), key+='~');
-            key.pop_back();
-            if(l == r) break;
-            ans.emplace_back(l, min(l+3, r));            
+    vector<vector<string>> answer;
+        vector<string> temp;
+        sort(products.begin(),products.end());
+        string current="";
+        for(auto ch:searchWord)
+        {
+            current+=ch;
+            temp.clear();
+            vector<string>::iterator itr = lower_bound(products.begin(),products.end(),current);
+            for(int i=0;i<3 and itr+i!=products.end();i++)
+            {
+                string now = *(itr+i);
+                if(now.find(current)) break;
+                temp.push_back(now);
+            }
+            answer.push_back(temp);
         }
-        while(ans.size() != searchWord.size()) ans.push_back({});
-        return ans; 
+        return answer;
     }
 };
